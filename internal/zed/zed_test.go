@@ -161,7 +161,7 @@ func TestInstallBackupModeSymlinkAndNoop(t *testing.T) {
 	path := filepath.Join(dir, "settings.json")
 	link := filepath.Join(dir, "linked.json")
 	original := []byte("// settings\n{\"theme\":\"test\",}\n")
-	if err := os.WriteFile(path, original, 0640); err != nil {
+	if err := os.WriteFile(path, original, 0o640); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Symlink(path, link); err != nil {
@@ -177,7 +177,7 @@ func TestInstallBackupModeSymlinkAndNoop(t *testing.T) {
 		t.Fatalf("bad backup %s %v", backup, err)
 	}
 	info, err := os.Stat(path)
-	if err != nil || info.Mode().Perm() != 0640 {
+	if err != nil || info.Mode().Perm() != 0o640 {
 		t.Fatalf("mode %v %v", info, err)
 	}
 	if info, err := os.Lstat(link); err != nil || info.Mode()&os.ModeSymlink == 0 {

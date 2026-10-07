@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/tailscale/hujson"
+
 	"github.com/dotjoshrc/sbx-connect/internal/agent"
 	"github.com/dotjoshrc/sbx-connect/internal/lock"
 )
@@ -226,7 +227,7 @@ func Install(ctx context.Context, path, cache string, entries map[string]Entry) 
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return r, err
 	}
-	mode := os.FileMode(0600)
+	mode := os.FileMode(0o600)
 	if exists {
 		info, err := os.Stat(abs)
 		if err != nil {
@@ -243,7 +244,7 @@ func Install(ctx context.Context, path, cache string, entries map[string]Entry) 
 	if exists && bytes.Equal(data, updated) {
 		return r, nil
 	}
-	if err := os.MkdirAll(filepath.Dir(abs), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(abs), 0o700); err != nil {
 		return r, err
 	}
 	if exists {

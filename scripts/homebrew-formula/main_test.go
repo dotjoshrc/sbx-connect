@@ -39,14 +39,14 @@ func TestGenerate(t *testing.T) {
 		for _, arch := range []string{"arm64", "amd64"} {
 			name := "sbx-connect_" + version + "_" + osName + "_" + arch + ".tar.gz"
 			data := []byte(name + "\n")
-			if err := os.WriteFile(filepath.Join(dist, name), data, 0600); err != nil {
+			if err := os.WriteFile(filepath.Join(dist, name), data, 0o600); err != nil {
 				t.Fatal(err)
 			}
 			sum := sha256.Sum256(data)
 			sums = append(sums, hex.EncodeToString(sum[:])+"  "+name)
 		}
 	}
-	if err := os.WriteFile(filepath.Join(dist, "SHA256SUMS"), []byte(strings.Join(sums, "\n")+"\n"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dist, "SHA256SUMS"), []byte(strings.Join(sums, "\n")+"\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -74,10 +74,10 @@ func TestGenerate(t *testing.T) {
 func TestGenerateRejectsChecksumMismatch(t *testing.T) {
 	dist := t.TempDir()
 	name := "sbx-connect_1.2.3_darwin_arm64.tar.gz"
-	if err := os.WriteFile(filepath.Join(dist, name), []byte("archive"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dist, name), []byte("archive"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dist, "SHA256SUMS"), []byte(strings.Repeat("0", 64)+"  "+name+"\n"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dist, "SHA256SUMS"), []byte(strings.Repeat("0", 64)+"  "+name+"\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 

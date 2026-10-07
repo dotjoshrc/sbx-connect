@@ -20,7 +20,7 @@ import (
 func TestOptions(t *testing.T) {
 	root := t.TempDir()
 	physical, logical := filepath.Join(root, "physical"), filepath.Join(root, "logical")
-	if err := os.Mkdir(physical, 0700); err != nil {
+	if err := os.Mkdir(physical, 0o700); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Symlink(physical, logical); err != nil {
@@ -37,9 +37,13 @@ func TestOptions(t *testing.T) {
 		t.Fatalf("%+v, %v", opts, err)
 	}
 	for _, args := range [][]string{
-		{}, {"--project", ".", "extra"}, {"--project", ".", "--agent", "other"},
-		{"--project", ".", "--timeout", "0"}, {"--project", ".", "--timeout", "-1"},
-		{"--project", ".", "--timeout", "NaN"}, {"--project", ".", "--timeout", "+Inf"},
+		{},
+		{"--project", ".", "extra"},
+		{"--project", ".", "--agent", "other"},
+		{"--project", ".", "--timeout", "0"},
+		{"--project", ".", "--timeout", "-1"},
+		{"--project", ".", "--timeout", "NaN"},
+		{"--project", ".", "--timeout", "+Inf"},
 		{"--project", ".", "--timeout", "1e20"},
 	} {
 		if _, err := parseOptions(args, io.Discard); err == nil {
@@ -67,7 +71,7 @@ func TestLauncherHelper(t *testing.T) {
 	signal.Notify(signals, syscall.SIGTERM)
 	stop := func() {
 		<-signals
-		if err := os.WriteFile(filepath.Join(os.Getenv("SBX_CHECK_STATE"), verb+"-"+name+".terminated"), nil, 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(os.Getenv("SBX_CHECK_STATE"), verb+"-"+name+".terminated"), nil, 0o600); err != nil {
 			os.Exit(11)
 		}
 		os.Exit(0)
@@ -123,7 +127,7 @@ func helperOptions(t *testing.T, mode string) options {
 	t.Setenv("SBX_CHECK_MODE", mode)
 	t.Setenv("GORACE", "atexit_sleep_ms=0")
 	launcher := filepath.Join(root, "launcher")
-	if err := os.WriteFile(launcher, []byte("#!/bin/sh\nexec \"$SBX_CHECK_EXE\" -test.run '^TestLauncherHelper$' -- \"$@\"\n"), 0700); err != nil {
+	if err := os.WriteFile(launcher, []byte("#!/bin/sh\nexec \"$SBX_CHECK_EXE\" -test.run '^TestLauncherHelper$' -- \"$@\"\n"), 0o700); err != nil {
 		t.Fatal(err)
 	}
 	return options{launcher: launcher, project: root, agents: []string{"codex", "claude"}, timeout: 2 * time.Second}

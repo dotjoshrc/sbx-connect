@@ -17,7 +17,7 @@ func TestLogicalProjectIdentity(t *testing.T) {
 	}
 	physical := filepath.Join(dir, "physical")
 	logical := filepath.Join(dir, "logical")
-	if err := os.Mkdir(physical, 0700); err != nil {
+	if err := os.Mkdir(physical, 0o700); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Symlink(physical, logical); err != nil {
@@ -69,7 +69,7 @@ func TestProjectSlug(t *testing.T) {
 func TestInvalidProjects(t *testing.T) {
 	dir := t.TempDir()
 	file := filepath.Join(dir, "file")
-	if err := os.WriteFile(file, nil, 0600); err != nil {
+	if err := os.WriteFile(file, nil, 0o600); err != nil {
 		t.Fatal(err)
 	}
 	for _, p := range []string{"/", file, filepath.Join(dir, "missing")} {

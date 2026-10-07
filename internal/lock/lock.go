@@ -16,10 +16,10 @@ const Timeout = 5 * time.Minute
 // Acquire keeps the lock file permanently: unlinking it would let waiters lock
 // different inodes. The kernel releases flock on close, including process death.
 func Acquire(ctx context.Context, path string, timeout time.Duration) (func(), error) {
-	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return nil, err
 	}
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0600)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		return nil, err
 	}

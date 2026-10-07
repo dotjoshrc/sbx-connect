@@ -17,7 +17,7 @@ func (f fixture) seedSandbox(t *testing.T, name, agent, status string, workspace
 	t.Helper()
 	dir := filepath.Join(f.state, "sandboxes", name)
 	bin := filepath.Join(dir, "home", ".local", "bin")
-	if err := os.MkdirAll(bin, 0700); err != nil {
+	if err := os.MkdirAll(bin, 0o700); err != nil {
 		t.Fatal(err)
 	}
 	data, err := json.Marshal(workspaces)
@@ -25,7 +25,7 @@ func (f fixture) seedSandbox(t *testing.T, name, agent, status string, workspace
 		t.Fatal(err)
 	}
 	for file, value := range map[string]string{"agent": agent, "status": status, "workspaces": string(data), "keep": "sandbox-local data"} {
-		if err := os.WriteFile(filepath.Join(dir, file), []byte(value), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, file), []byte(value), 0o600); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -49,13 +49,13 @@ func TestACPCommandsOnSandboxPath(t *testing.T) {
 					}
 					dir := f.seedSandbox(t, name, ag.Name, status, []string{f.project}, false)
 					bin := filepath.Join(dir, "usr/local/bin")
-					if err := os.MkdirAll(bin, 0700); err != nil {
+					if err := os.MkdirAll(bin, 0o700); err != nil {
 						t.Fatal(err)
 					}
 					want := filepath.Join(bin, ag.Name+"-acp")
 					if command != "generic" {
 						if command == "non-executable-agent" {
-							if err := os.WriteFile(want, []byte("not executable"), 0600); err != nil {
+							if err := os.WriteFile(want, []byte("not executable"), 0o600); err != nil {
 								t.Fatal(err)
 							}
 						} else if err := os.Symlink(fake, want); err != nil {
@@ -191,7 +191,7 @@ func TestDiscoverAddsConfiguredACPKitOnly(t *testing.T) {
 	f := newFixture(t)
 	dir := f.seedSandbox(t, "existing", "codex", "running", []string{f.project}, false)
 	config := `{"kits":["extra-common"],"agents":{"codex":{"acp_kit":"custom-acp","kits":["extra-agent"]}}}`
-	if err := os.WriteFile(filepath.Join(f.project, ".sbx-connect.json"), []byte(config), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(f.project, ".sbx-connect.json"), []byte(config), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	out, diag, code := f.run(t, nil, "prepare", "codex", "--add-acp-kit", "--add-kit", "extra-cli", "--template", "ignored")
@@ -290,7 +290,7 @@ func TestDiscoveryFallback(t *testing.T) {
 			}
 			dir := f.seedSandbox(t, name, ag, status, workspaces, scenario != "clone without ACP")
 			if strings.HasPrefix(scenario, "clone") {
-				if err := os.Mkdir(filepath.Join(dir, "clone"), 0700); err != nil {
+				if err := os.Mkdir(filepath.Join(dir, "clone"), 0o700); err != nil {
 					t.Fatal(err)
 				}
 			}

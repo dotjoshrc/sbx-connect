@@ -48,11 +48,13 @@ func (r Runner) run(ctx context.Context, in io.Reader, out io.Writer, args ...st
 func (r Runner) Setup(ctx context.Context, args ...string) error {
 	return r.run(ctx, nil, r.Stderr, args...)
 }
+
 func (r Runner) Capture(ctx context.Context, args ...string) (string, error) {
 	var b bytes.Buffer
 	err := r.run(ctx, nil, &b, args...)
 	return b.String(), err
 }
+
 func (r Runner) Stream(ctx context.Context, args ...string) error {
 	return r.run(ctx, r.Stdin, r.Stdout, args...)
 }

@@ -55,19 +55,21 @@ func newFixture(t *testing.T) fixture {
 	root := t.TempDir()
 	f := fixture{state: filepath.Join(root, "state"), project: filepath.Join(root, "project with spaces ' $();"), cache: filepath.Join(root, "cache")}
 	for _, dir := range []string{f.state, f.project, f.cache} {
-		if err := os.MkdirAll(dir, 0700); err != nil {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}
 	f.env = []string{"FAKE_STATE=" + f.state, "XDG_CACHE_HOME=" + f.cache, "XDG_CONFIG_HOME=" + filepath.Join(root, "config"), "SBX_CONNECT_CONFIG=", "HOME=" + root, "SBX_CONNECT_SBX_BIN=" + fake, "PATH=" + buildDir + ":" + os.Getenv("PATH"), "GORACE=atexit_sleep_ms=0", "PWD=" + f.project}
 	return f
 }
+
 func (f fixture) command(ctx context.Context, args ...string) *exec.Cmd {
 	cmd := exec.CommandContext(ctx, launcher, args...)
 	cmd.Dir = f.project
 	cmd.Env = append(os.Environ(), f.env...)
 	return cmd
 }
+
 func (f fixture) run(t *testing.T, input []byte, args ...string) ([]byte, string, int) {
 	t.Helper()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -91,6 +93,7 @@ func (f fixture) run(t *testing.T, input []byte, args ...string) ([]byte, string
 	}
 	return out.Bytes(), diag.String(), code
 }
+
 func read(t *testing.T, p string) string {
 	t.Helper()
 	b, err := os.ReadFile(p)
@@ -99,6 +102,7 @@ func read(t *testing.T, p string) string {
 	}
 	return string(b)
 }
+
 func (f fixture) calls(t *testing.T) [][]string {
 	t.Helper()
 	var calls [][]string
@@ -111,6 +115,7 @@ func (f fixture) calls(t *testing.T) [][]string {
 	}
 	return calls
 }
+
 func count(calls [][]string, verb string) int {
 	n := 0
 	for _, c := range calls {
@@ -322,11 +327,11 @@ func TestMissingKitLauncherPreservesSandbox(t *testing.T) {
 			f := newFixture(t)
 			name := sandbox.Name(ag, f.project)
 			home := filepath.Join(f.state, "sandboxes", name, "home")
-			if err := os.MkdirAll(home, 0700); err != nil {
+			if err := os.MkdirAll(home, 0o700); err != nil {
 				t.Fatal(err)
 			}
 			data := filepath.Join(home, "existing-session")
-			if err := os.WriteFile(data, []byte("keep me"), 0600); err != nil {
+			if err := os.WriteFile(data, []byte("keep me"), 0o600); err != nil {
 				t.Fatal(err)
 			}
 			out, diag, code := f.run(t, []byte("ACP input"), "run", ag, "--mode=reuse")
@@ -508,7 +513,7 @@ func TestLifecycleAndDoctor(t *testing.T) {
 	}
 	name := sandbox.Name("codex", f.project)
 	for _, foreign := range []string{"zed-codex-old", "sbx-connect-codex-invalid", "somebody-elses"} {
-		if err := os.MkdirAll(filepath.Join(f.state, "sandboxes", foreign), 0700); err != nil {
+		if err := os.MkdirAll(filepath.Join(f.state, "sandboxes", foreign), 0o700); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -609,7 +614,7 @@ func TestConfiguredExtraKits(t *testing.T) {
 	f := newFixture(t)
 	configPath := filepath.Join(f.project, ".sbx-connect.json")
 	data := `{"kits":["common","duplicate","./local-kit"],"agents":{"codex":{"kits":["codex-extra"],"acp_kit":"configured-acp"},"claude":{"kits":["claude-extra"]}}}`
-	if err := os.WriteFile(configPath, []byte(data), 0600); err != nil {
+	if err := os.WriteFile(configPath, []byte(data), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	cliKit := "git+https://example.test/repo#dir=with,comma ' $();"
@@ -634,7 +639,7 @@ func TestConfiguredExtraKits(t *testing.T) {
 			t.Fatalf("kits got %q want %q", got, want)
 		}
 	}
-	if err := os.WriteFile(configPath, []byte(`{"kits":["changed"]}`), 0600); err != nil {
+	if err := os.WriteFile(configPath, []byte(`{"kits":["changed"]}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	_, diag, code := f.run(t, nil, "prepare", "codex")
@@ -646,7 +651,7 @@ func TestConfiguredExtraKits(t *testing.T) {
 func TestConfigFlagsAndEditorRegistration(t *testing.T) {
 	f := newFixture(t)
 	configPath := filepath.Join(f.project, "custom config.json")
-	if err := os.WriteFile(configPath, []byte(`{"kits":["extra"],"agents":{"codex":{"acp_kit":"configured-acp"}}}`), 0600); err != nil {
+	if err := os.WriteFile(configPath, []byte(`{"kits":["extra"],"agents":{"codex":{"acp_kit":"configured-acp"}}}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	f.env = append(f.env, "SBX_CONNECT_CONFIG=/missing/config.json")
@@ -683,7 +688,7 @@ func TestConfigFlagsAndEditorRegistration(t *testing.T) {
 func TestInvalidKitConfigDoesNotInvokeSBX(t *testing.T) {
 	for _, data := range []string{`{"kits":[""]}`, `{"kits":[123]}`, `{"agent":{"codex":{}}}`} {
 		f := newFixture(t)
-		if err := os.WriteFile(filepath.Join(f.project, ".sbx-connect.json"), []byte(data), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(f.project, ".sbx-connect.json"), []byte(data), 0o600); err != nil {
 			t.Fatal(err)
 		}
 		out, _, code := f.run(t, nil, "prepare", "codex")
@@ -708,14 +713,14 @@ func TestInvalidKitConfigDoesNotInvokeSBX(t *testing.T) {
 func TestUserConfigWithExplicitProject(t *testing.T) {
 	f := newFixture(t)
 	userConfig := filepath.Join(filepath.Dir(f.project), "config/sbx-connect/config.json")
-	if err := os.MkdirAll(filepath.Dir(userConfig), 0700); err != nil {
+	if err := os.MkdirAll(filepath.Dir(userConfig), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(userConfig, []byte(`{"kits":["user-common"],"agents":{"codex":{"kits":["user-codex"]}}}`), 0600); err != nil {
+	if err := os.WriteFile(userConfig, []byte(`{"kits":["user-common"],"agents":{"codex":{"kits":["user-codex"]}}}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	project := t.TempDir()
-	if err := os.WriteFile(filepath.Join(project, ".sbx-connect.json"), []byte(`{"kits":["project-common"]}`), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(project, ".sbx-connect.json"), []byte(`{"kits":["project-common"]}`), 0o600); err != nil {
 		t.Fatal(err)
 	}
 	_, diag, code := f.run(t, nil, "prepare", "codex", "--project", project, "--kit", "acp")
