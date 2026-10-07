@@ -45,7 +45,7 @@ live validation; see [validation](docs/validation.md).
    brew install dotjoshrc/tap/sbx-connect
    ```
 
-   or from source (Go 1.26+):
+   or from source (Go 1.27.1+):
 
    ```sh
    go install github.com/dotjoshrc/sbx-connect@latest

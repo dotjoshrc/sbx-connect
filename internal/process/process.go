@@ -29,8 +29,7 @@ func (r Runner) run(ctx context.Context, in io.Reader, out io.Writer, args ...st
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error {
 		sig := syscall.SIGTERM
-		var cause SignalError
-		if errors.As(context.Cause(ctx), &cause) {
+		if cause, ok := errors.AsType[SignalError](context.Cause(ctx)); ok {
 			sig = cause.Signal
 		}
 		err := syscall.Kill(-cmd.Process.Pid, sig)
@@ -62,12 +61,10 @@ func ExitCode(err error) int {
 	if err == nil {
 		return 0
 	}
-	var sig SignalError
-	if errors.As(err, &sig) {
+	if sig, ok := errors.AsType[SignalError](err); ok {
 		return 128 + int(sig.Signal)
 	}
-	var child *exec.ExitError
-	if errors.As(err, &child) {
+	if child, ok := errors.AsType[*exec.ExitError](err); ok {
 		if status, ok := child.Sys().(syscall.WaitStatus); ok && status.Signaled() {
 			return 128 + int(status.Signal())
 		}
