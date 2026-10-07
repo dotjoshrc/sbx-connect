@@ -185,7 +185,7 @@ func (m Manager) prepareOwned(ctx context.Context, p *Project) error {
 		return err
 	}
 	if !contains(names, p.Name) {
-		fmt.Fprintf(m.Runner.Stderr, "Creating %s for %s\n", p.Name, p.Path)
+		_, _ = fmt.Fprintf(m.Runner.Stderr, "Creating %s for %s\n", p.Name, p.Path)
 		m.debugf("lifecycle create start name=%q kit=%q extra_kits=%d template=%q", p.Name, p.Kit, len(p.ExtraKits), p.Template)
 		args := []string{"create", "--name", p.Name, "--kit", p.Kit}
 		for _, kit := range p.ExtraKits {
@@ -201,7 +201,7 @@ func (m Manager) prepareOwned(ctx context.Context, p *Project) error {
 		}
 		m.debugf("lifecycle create done name=%q", p.Name)
 	} else {
-		fmt.Fprintln(m.Runner.Stderr, "Reusing sandbox; kit and template changes only affect new sandboxes")
+		_, _ = fmt.Fprintln(m.Runner.Stderr, "Reusing sandbox; kit and template changes only affect new sandboxes")
 		m.debugf("lifecycle prepare-owned reuse name=%q", p.Name)
 	}
 	// sbx exec resumes stopped sandboxes; setup has no editor stdin. Check the
@@ -272,13 +272,13 @@ func (m Manager) Run(ctx context.Context, p Project, args []string, mode Mode) e
 		return err
 	}
 	// Prepare/discover returned and released their lock before starting the ACP stream.
-	fmt.Fprintf(m.Runner.Stderr, "Connecting to %s\n", p.Name)
+	_, _ = fmt.Fprintf(m.Runner.Stderr, "Connecting to %s\n", p.Name)
 	cmd := []string{"exec", "-i", "--workdir", p.Path, p.Name, p.Agent.Binary}
 	m.debugf("lifecycle acp start name=%q workdir=%q binary=%q", p.Name, p.Path, p.Agent.Binary)
 	err = m.Runner.Stream(ctx, append(cmd, args...)...)
 	m.debugf("lifecycle acp exit name=%q error=%v", p.Name, err)
 	if disposable {
-		fmt.Fprintf(m.Runner.Stderr, "Removing %s after ACP session exit\n", p.Name)
+		_, _ = fmt.Fprintf(m.Runner.Stderr, "Removing %s after ACP session exit\n", p.Name)
 		// Editor shutdown cancels the session context. Use a bounded, uncanceled
 		// context so disposable sandboxes are still removed when the editor quits.
 		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), cleanupTimeout)
@@ -367,5 +367,5 @@ func (m Manager) debugf(format string, args ...any) {
 	if !m.Debug || m.Runner.Stderr == nil {
 		return
 	}
-	fmt.Fprintf(m.Runner.Stderr, "sbx-connect debug: "+format+"\n", args...)
+	_, _ = fmt.Fprintf(m.Runner.Stderr, "sbx-connect debug: "+format+"\n", args...)
 }

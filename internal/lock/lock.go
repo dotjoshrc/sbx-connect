@@ -27,7 +27,7 @@ func Acquire(ctx context.Context, path string, timeout time.Duration) (func(), e
 	defer cancel()
 	for {
 		if err := wait.Err(); err != nil {
-			f.Close()
+			_ = f.Close()
 			return nil, fmt.Errorf("waiting for lock %s: %w", path, err)
 		}
 		err = syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
@@ -35,7 +35,7 @@ func Acquire(ctx context.Context, path string, timeout time.Duration) (func(), e
 			return func() { _ = f.Close() }, nil
 		}
 		if !errors.Is(err, syscall.EWOULDBLOCK) && !errors.Is(err, syscall.EAGAIN) {
-			f.Close()
+			_ = f.Close()
 			return nil, err
 		}
 		select {

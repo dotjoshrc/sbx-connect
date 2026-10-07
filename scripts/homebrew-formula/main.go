@@ -31,7 +31,7 @@ func parseOptions(args []string, out io.Writer) (options, error) {
 	flags := flag.NewFlagSet("homebrew-formula", flag.ContinueOnError)
 	flags.SetOutput(out)
 	flags.Usage = func() {
-		fmt.Fprintln(out, "Generate a Homebrew formula from exact GoReleaser release archives.\n\nUsage: homebrew-formula --repository OWNER/REPO --tag vMAJOR.MINOR.PATCH [--dist DIR]")
+		_, _ = fmt.Fprintln(out, "Generate a Homebrew formula from exact GoReleaser release archives.\n\nUsage: homebrew-formula --repository OWNER/REPO --tag vMAJOR.MINOR.PATCH [--dist DIR]")
 		flags.PrintDefaults()
 	}
 	flags.StringVar(&opts.repository, "repository", "", "GitHub OWNER/REPO")

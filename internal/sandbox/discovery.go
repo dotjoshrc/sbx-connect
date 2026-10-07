@@ -143,7 +143,7 @@ func (m Manager) prepareCandidate(ctx context.Context, p *Project, name string) 
 		if !p.AddACPKit {
 			return false, fmt.Errorf("sandbox %s is missing ACP launcher (%s-acp or acp on PATH, or %s); rerun with --add-acp-kit to install the ACP kit in this sandbox", name, p.Agent.Name, p.Agent.Binary)
 		}
-		fmt.Fprintf(m.Runner.Stderr, "Adding ACP kit %s to existing sandbox %s (container recreation may interrupt running processes)\n", p.Kit, name)
+		_, _ = fmt.Fprintf(m.Runner.Stderr, "Adding ACP kit %s to existing sandbox %s (container recreation may interrupt running processes)\n", p.Kit, name)
 		m.debugf("lifecycle reuse-kit start name=%q kit=%q", name, p.Kit)
 		if err := m.Runner.Setup(ctx, "kit", "add", name, p.Kit); err != nil {
 			return false, fmt.Errorf("cannot add ACP kit to existing sandbox %s; check sbx kit add support and diagnostics: %w", name, err)
@@ -185,12 +185,12 @@ func (m Manager) discover(ctx context.Context, p Project) (Project, bool, error)
 			return p, false, err
 		}
 		if !ready {
-			fmt.Fprintf(m.Runner.Stderr, "Skipping %s: workspace uses clone mode\n", candidate.name)
+			_, _ = fmt.Fprintf(m.Runner.Stderr, "Skipping %s: workspace uses clone mode\n", candidate.name)
 			m.debugf("lifecycle discover skip name=%q reason=%q", candidate.name, "incompatible")
 			continue
 		}
 		p.Name = candidate.name
-		fmt.Fprintf(m.Runner.Stderr, "Reusing running sandbox %s; extra kits and template changes only affect new sandboxes\n", p.Name)
+		_, _ = fmt.Fprintf(m.Runner.Stderr, "Reusing running sandbox %s; extra kits and template changes only affect new sandboxes\n", p.Name)
 		m.debugf("lifecycle discover selected name=%q mount=%q", p.Name, candidate.mount)
 		return p, true, nil
 	}

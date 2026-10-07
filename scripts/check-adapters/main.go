@@ -35,10 +35,10 @@ func parseOptions(args []string, out io.Writer) (options, error) {
 	flags := flag.NewFlagSet("check-adapters", flag.ContinueOnError)
 	flags.SetOutput(out)
 	flags.Usage = func() {
-		fmt.Fprintln(out, "Smoke-test kit ACP initialization without model prompts.")
-		fmt.Fprintln(out, "Requires sbx and its local service; configure provider credentials before first use.")
-		fmt.Fprintln(out, "Creates/reuses persistent sandboxes and may download kits, images, and adapters.")
-		fmt.Fprintln(out, "Sandboxes are retained after validation.\n\nUsage: check-adapters --project PATH [options]")
+		_, _ = fmt.Fprintln(out, "Smoke-test kit ACP initialization without model prompts.")
+		_, _ = fmt.Fprintln(out, "Requires sbx and its local service; configure provider credentials before first use.")
+		_, _ = fmt.Fprintln(out, "Creates/reuses persistent sandboxes and may download kits, images, and adapters.")
+		_, _ = fmt.Fprintln(out, "Sandboxes are retained after validation.\n\nUsage: check-adapters --project PATH [options]")
 		flags.PrintDefaults()
 	}
 	flags.StringVar(&opts.launcher, "launcher", "./sbx-connect", "built launcher path")
@@ -148,12 +148,12 @@ func check(ctx context.Context, opts options, name string, diagnostics io.Writer
 	if err != nil {
 		return nil, err
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 	out, writer := io.Pipe()
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 	cmd.Stdout = writer
 	if err := cmd.Start(); err != nil {
-		writer.Close()
+		_ = writer.Close()
 		return nil, err
 	}
 	done := make(chan struct{})
@@ -165,7 +165,7 @@ func check(ctx context.Context, opts options, name string, diagnostics io.Writer
 	defer func() {
 		cancel()
 		// Release any stdout copy blocked after the initialize response.
-		out.Close()
+		_ = out.Close()
 		<-done
 	}()
 	if _, err := io.WriteString(in, initializeRequest); err != nil {
