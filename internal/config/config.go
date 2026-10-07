@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
 )
 
 // Options defines extra kits and an optional replacement ACP kit for one agent.

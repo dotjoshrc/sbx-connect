@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"sbx-connect/internal/app"
-	"sbx-connect/internal/process"
+	"github.com/dotjoshrc/sbx-connect/internal/app"
+	"github.com/dotjoshrc/sbx-connect/internal/process"
 )
 
 var version = "dev"

@@ -13,11 +13,11 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/config"
-	"sbx-connect/internal/process"
-	"sbx-connect/internal/sandbox"
-	"sbx-connect/internal/zed"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/config"
+	"github.com/dotjoshrc/sbx-connect/internal/process"
+	"github.com/dotjoshrc/sbx-connect/internal/sandbox"
+	"github.com/dotjoshrc/sbx-connect/internal/zed"
 )
 
 type App struct {

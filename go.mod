@@ -1,4 +1,4 @@
-module sbx-connect
+module github.com/dotjoshrc/sbx-connect
 
 go 1.26
 

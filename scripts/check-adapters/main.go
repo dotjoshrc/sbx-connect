@@ -18,8 +18,8 @@ import (
 	"syscall"
 	"time"
 
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/sandbox"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/sandbox"
 )
 
 const initializeRequest = `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":1,"clientCapabilities":{},"clientInfo":{"name":"sbx-connect-validation","version":"0"}}}` + "\n"

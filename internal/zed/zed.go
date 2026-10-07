@@ -15,8 +15,8 @@ import (
 	"strings"
 
 	"github.com/tailscale/hujson"
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/lock"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/lock"
 )
 
 type Entry struct {

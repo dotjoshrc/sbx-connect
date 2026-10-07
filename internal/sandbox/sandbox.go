@@ -9,13 +9,14 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"time"
 
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/lock"
-	"sbx-connect/internal/process"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/lock"
+	"github.com/dotjoshrc/sbx-connect/internal/process"
 )
 
 const cleanupTimeout = 10 * time.Second
@@ -124,7 +125,7 @@ func (m Manager) Names(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("cannot list sandboxes; check sbx login and the sandbox service: %w", err)
 	}
 	var names []string
-	for _, name := range strings.Fields(out) {
+	for name := range strings.FieldsSeq(out) {
 		if Owned(name) {
 			names = append(names, name)
 		}
@@ -135,12 +136,7 @@ func (m Manager) Names(ctx context.Context) ([]string, error) {
 }
 
 func contains(names []string, name string) bool {
-	for _, n := range names {
-		if n == name {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(names, name)
 }
 
 func (m Manager) lock(ctx context.Context, name string) (func(), error) {

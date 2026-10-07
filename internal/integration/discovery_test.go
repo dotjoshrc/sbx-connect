@@ -9,8 +9,8 @@ import (
 	"sync"
 	"testing"
 
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/sandbox"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/sandbox"
 )
 
 func (f fixture) seedSandbox(t *testing.T, name, agent, status string, workspaces []string, launcherPresent bool) string {

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
 )
 
 func TestParseSandboxes(t *testing.T) {

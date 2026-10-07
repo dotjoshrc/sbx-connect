@@ -48,13 +48,14 @@ live validation; see [validation](docs/validation.md).
    or from source (Go 1.26+):
 
    ```sh
-   cd /path/to/sbx-connect
-   go build -o sbx-connect .
-   mkdir -p "$HOME/.local/bin"
-   cp sbx-connect "$HOME/.local/bin/sbx-connect"
-   export PATH="$HOME/.local/bin:$PATH"
+   go install github.com/dotjoshrc/sbx-connect@latest
    sbx-connect version
    ```
+
+   This installs to `$(go env GOPATH)/bin` (`~/go/bin` by default); add it to
+   `PATH` if `sbx-connect` isn't found afterward. `go install` doesn't inject a
+   release version, so `version` reports `dev`; Homebrew and GoReleaser
+   archives carry the real version.
 
 3. **Prepare your project's sandbox** (optional, but avoids first-connection
    delays):

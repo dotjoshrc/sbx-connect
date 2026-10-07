@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"sbx-connect/internal/agent"
-	"sbx-connect/internal/sandbox"
+	"github.com/dotjoshrc/sbx-connect/internal/agent"
+	"github.com/dotjoshrc/sbx-connect/internal/sandbox"
 )
 
 var launcher, fake, buildDir string
@@ -102,7 +102,7 @@ func read(t *testing.T, p string) string {
 func (f fixture) calls(t *testing.T) [][]string {
 	t.Helper()
 	var calls [][]string
-	for _, line := range strings.Split(strings.TrimSpace(read(t, filepath.Join(f.state, "calls"))), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(read(t, filepath.Join(f.state, "calls"))), "\n") {
 		var args []string
 		if err := json.Unmarshal([]byte(line), &args); err != nil {
 			t.Fatal(err)
