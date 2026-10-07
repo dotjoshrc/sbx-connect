@@ -59,7 +59,7 @@ func newFixture(t *testing.T) fixture {
 			t.Fatal(err)
 		}
 	}
-	f.env = []string{"FAKE_STATE=" + f.state, "XDG_CACHE_HOME=" + f.cache, "XDG_CONFIG_HOME=" + filepath.Join(root, "config"), "SBX_CONNECT_CONFIG=", "HOME=" + root, "SBX_CONNECT_SBX_BIN=" + fake, "PATH=" + buildDir + ":" + os.Getenv("PATH"), "GORACE=atexit_sleep_ms=0"}
+	f.env = []string{"FAKE_STATE=" + f.state, "XDG_CACHE_HOME=" + f.cache, "XDG_CONFIG_HOME=" + filepath.Join(root, "config"), "SBX_CONNECT_CONFIG=", "HOME=" + root, "SBX_CONNECT_SBX_BIN=" + fake, "PATH=" + buildDir + ":" + os.Getenv("PATH"), "GORACE=atexit_sleep_ms=0", "PWD=" + f.project}
 	return f
 }
 func (f fixture) command(ctx context.Context, args ...string) *exec.Cmd {

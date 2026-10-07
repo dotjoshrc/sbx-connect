@@ -9,7 +9,12 @@ import (
 )
 
 func TestLogicalProjectIdentity(t *testing.T) {
-	dir := t.TempDir()
+	// Resolve any symlink in TempDir's own path (e.g. macOS's /var -> /private/var)
+	// so physical, built by string-joining below, matches raw getwd()'s resolved form.
+	dir, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
 	physical := filepath.Join(dir, "physical")
 	logical := filepath.Join(dir, "logical")
 	if err := os.Mkdir(physical, 0700); err != nil {
