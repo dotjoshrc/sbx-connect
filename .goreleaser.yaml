@@ -1,0 +1,49 @@
+version: 2
+project_name: sbx-connect
+
+builds:
+  - id: sbx-connect
+    main: .
+    binary: sbx-connect
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -mod=readonly
+      - -trimpath
+      - -buildvcs=false
+    ldflags:
+      - -s -w -buildid= -X main.version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    wrap_in_directory: true
+    builds_info:
+      mode: 0755
+      mtime: "{{ .CommitDate }}"
+    files:
+      - src: README.md
+        info:
+          mode: 0644
+          mtime: "{{ .CommitDate }}"
+      - src: docs/validation.md
+        info:
+          mode: 0644
+          mtime: "{{ .CommitDate }}"
+
+checksum:
+  name_template: SHA256SUMS
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ .Version }}-SNAPSHOT"
+
+changelog:
+  disable: true

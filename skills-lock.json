@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "Effective Go": {
+      "source": "openshift/hypershift",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/effective-go/SKILL.md",
+      "computedHash": "c706661bf057a9e606dd4ebced1785e01ced3be25d98c92e0cfdbdc27ea692fc"
+    }
+  }
+}
