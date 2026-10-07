@@ -39,11 +39,11 @@ live validation; see [validation](docs/validation.md).
    agent configuration. If you add credentials after creating a sandbox, recreate
    that sandbox to pick them up.
 
-2. **Install `sbx-connect`**, either via Homebrew once a tap is published (see
-   [Homebrew releases](docs/homebrew.md)):
+2. **Install `sbx-connect`**, either via Homebrew once a release is published
+   (see [Homebrew releases](docs/homebrew.md)):
 
    ```sh
-   brew install OWNER/tap/sbx-connect
+   brew install dotjoshrc/tap/sbx-connect
    ```
 
    or from source (Go 1.26+):

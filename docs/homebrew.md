@@ -7,17 +7,40 @@ Docker Sandboxes is installed and configured separately.
 
 ## One-time setup
 
-1. Host this project in a GitHub repository.
+1. Host this project in a GitHub repository. Done: [`dotjoshrc/sbx-connect`](https://github.com/dotjoshrc/sbx-connect).
 2. Create a public `homebrew-tap` repository under the same owner, initialized
-   with a README so it has a default branch.
+   with a README so it has a default branch. Done: [`dotjoshrc/homebrew-tap`](https://github.com/dotjoshrc/homebrew-tap).
 3. Add the release repository's Actions secret `HOMEBREW_TAP_TOKEN`: a fine-grained
    token with **Contents: read and write** access to the tap repository. The
    workflow's `GITHUB_TOKEN` publishes releases in the source repository; it
-   cannot write to a separate tap.
+   cannot write to a separate tap. Still to do — see below.
 4. For a different tap destination, set the source repository's Actions variables
    `HOMEBREW_TAP_OWNER` and `HOMEBREW_TAP_REPO` (the full repository name, including
-   `homebrew-`). Defaults are the source repository owner and `homebrew-tap`.
+   `homebrew-`). Defaults are the source repository owner and `homebrew-tap`, which
+   match this project, so no variables are needed.
 5. Replace the README's `OWNER/tap` install example with the chosen tap name.
+   Done: `dotjoshrc/tap`.
+
+### Creating the `HOMEBREW_TAP_TOKEN` secret
+
+This step needs a human in the GitHub UI — fine-grained tokens can't be minted
+via the API or CLI:
+
+1. Go to https://github.com/settings/personal-access-tokens/new while signed
+   in as an account with write access to `dotjoshrc/homebrew-tap`.
+2. Set **Resource owner** to `dotjoshrc`, **Repository access** to
+   "Only select repositories" → `homebrew-tap`, and under **Repository
+   permissions** set **Contents** to **Read and write**.
+3. Generate the token and copy it.
+4. Add it to `dotjoshrc/sbx-connect` as an Actions secret named
+   `HOMEBREW_TAP_TOKEN`:
+
+   ```sh
+   gh secret set HOMEBREW_TAP_TOKEN --repo dotjoshrc/sbx-connect
+   ```
+
+   (paste the token when prompted), or via **Settings → Secrets and
+   variables → Actions** in the repository on github.com.
 
 ## Publish a stable release
 
@@ -34,8 +57,8 @@ generator; its replacement casks support only macOS.
 After publication, verify on a Homebrew host:
 
 ```sh
-brew install OWNER/tap/sbx-connect
-brew test OWNER/tap/sbx-connect
+brew install dotjoshrc/tap/sbx-connect
+brew test dotjoshrc/tap/sbx-connect
 sbx-connect version
 ```
 
