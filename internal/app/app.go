@@ -11,13 +11,13 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/urfave/cli/v3"
+
 	"sbx-connect/internal/agent"
 	"sbx-connect/internal/config"
 	"sbx-connect/internal/process"
 	"sbx-connect/internal/sandbox"
 	"sbx-connect/internal/zed"
-
-	"github.com/urfave/cli/v3"
 )
 
 type App struct {
@@ -150,7 +150,7 @@ func (a App) provision(run bool) cli.ActionFunc {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(a.Out, p.Name)
+		_, _ = fmt.Fprintln(a.Out, p.Name)
 		return nil
 	}
 }
@@ -210,7 +210,8 @@ func (a App) Command() *cli.Command {
 				DisableSliceFlagSeparator: true,
 				Usage:                     "Connect ACP to an agent in Docker Sandboxes",
 				ArgsUsage:                 "AGENT [options] [-- ADAPTER_ARGS...]",
-				Flags: append(provisionFlags(),
+				Flags: append(
+					provisionFlags(),
 					&cli.StringFlag{
 						Name:  "mode",
 						Value: "reuse",
@@ -246,7 +247,7 @@ func (a App) Command() *cli.Command {
 					}
 
 					for _, name := range names {
-						fmt.Fprintln(a.Out, name)
+						_, _ = fmt.Fprintln(a.Out, name)
 					}
 					return nil
 				},
@@ -263,13 +264,13 @@ func (a App) Command() *cli.Command {
 				if err := noArgs(c); err != nil {
 					return err
 				}
-				fmt.Fprintln(a.Out, "sbx-connect", a.Version)
+				_, _ = fmt.Fprintln(a.Out, "sbx-connect", a.Version)
 				for _, ag := range agent.All {
-					fmt.Fprintf(a.Out, "%s %s\n", ag.Name, ag.Kit)
+					_, _ = fmt.Fprintf(a.Out, "%s %s\n", ag.Name, ag.Kit)
 				}
 				return nil
 			}},
-			{Name: "install", Usage: "Register an editor", Commands: []*cli.Command{{Name: "zed", Usage: "Register both agents in Zed JSONC settings", Flags: []cli.Flag{&cli.StringFlag{Name: "settings", Usage: "settings.json path"}, &cli.BoolFlag{Name: "print", Usage: "print entries without editing settings"}, &cli.BoolFlag{Name: "ephemeral", Usage: "register disposable entries that remove sandboxes when sessions close"}}, Action: a.installZed}}, Action: func(ctx context.Context, c *cli.Command) error { return fmt.Errorf("use install zed") }},
+			{Name: "install", Usage: "Register an editor", Commands: []*cli.Command{{Name: "zed", Usage: "Register both agents in Zed JSONC settings", Flags: []cli.Flag{&cli.StringFlag{Name: "settings", Usage: "settings.json path"}, &cli.BoolFlag{Name: "print", Usage: "print entries without editing settings"}, &cli.StringFlag{Name: "mode", Value: "reuse", Usage: "sandbox lifecycle mode for the registered entries: reuse, ephemeral, or auto (see run --mode)"}}, Action: a.installZed}}, Action: func(ctx context.Context, c *cli.Command) error { return fmt.Errorf("use install zed") }},
 		},
 	}
 }
@@ -321,12 +322,12 @@ func (a App) doctor(ctx context.Context, c *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(a.Out, "Host: %s/%s\nsbx: %s (%s)\nProject: %s\n", runtime.GOOS, runtime.GOARCH, m.Runner.Binary, strings.TrimSpace(version), path)
+	_, _ = fmt.Fprintf(a.Out, "Host: %s/%s\nsbx: %s (%s)\nProject: %s\n", runtime.GOOS, runtime.GOARCH, m.Runner.Binary, strings.TrimSpace(version), path)
 	names, err := m.Names(ctx)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(a.Out, "Sandbox service: accessible")
+	_, _ = fmt.Fprintln(a.Out, "Sandbox service: accessible")
 	for _, ag := range agent.All {
 		name := sandbox.Name(ag.Name, path)
 		status := "needs prepare"
@@ -335,9 +336,9 @@ func (a App) doctor(ctx context.Context, c *cli.Command) error {
 				status = "exists; prepare verifies adapter"
 			}
 		}
-		fmt.Fprintf(a.Out, "%s: %s\n", name, status)
+		_, _ = fmt.Fprintf(a.Out, "%s: %s\n", name, status)
 	}
-	fmt.Fprintln(a.Out, "Preflight passed. Sandbox kit launchers, adapter runtime, mounts, provider authentication and network policy require prepare/live validation; no sandboxes were started or model calls made.")
+	_, _ = fmt.Fprintln(a.Out, "Preflight passed. Sandbox kit launchers, adapter runtime, mounts, provider authentication and network policy require prepare/live validation; no sandboxes were started or model calls made.")
 	return nil
 }
 
@@ -367,7 +368,11 @@ func (a App) installZed(ctx context.Context, c *cli.Command) error {
 			return err
 		}
 	}
-	entries := zed.Entries(executable, sbx, configPath, c.Bool("ephemeral"))
+	mode, err := parseMode(c.String("mode"))
+	if err != nil {
+		return err
+	}
+	entries := zed.Entries(executable, sbx, configPath, mode.String())
 	if c.Bool("print") {
 		b, err := zed.Snippet(entries)
 		if err != nil {
@@ -392,12 +397,12 @@ func (a App) installZed(ctx context.Context, c *cli.Command) error {
 		return err
 	}
 	if r.Changed {
-		fmt.Fprintln(a.Out, "Updated", r.Path)
+		_, _ = fmt.Fprintln(a.Out, "Updated", r.Path)
 		if r.Backup != "" {
-			fmt.Fprintln(a.Out, "Backup:", r.Backup)
+			_, _ = fmt.Fprintln(a.Out, "Backup:", r.Backup)
 		}
 	} else {
-		fmt.Fprintln(a.Out, "Already installed:", r.Path)
+		_, _ = fmt.Fprintln(a.Out, "Already installed:", r.Path)
 	}
 	return nil
 }

@@ -34,15 +34,22 @@ with installation; detected external changes abort the update.
 sbx-connect install zed --settings /path/to/settings.json --print
 ```
 
-## Ephemeral entries
+## Ephemeral and auto entries
 
-To add disposable Zed entries, register with `--ephemeral`:
+`install zed` accepts `--mode`, the same `reuse` (default), `ephemeral`, or
+`auto` values as `run --mode` (see [the command reference](../README.md)).
+Registering with a non-default mode names the entries after it and bakes the
+matching `--mode=` argument into them:
 
 ```sh
-sbx-connect install zed --ephemeral
+sbx-connect install zed --mode=ephemeral
 ```
 
 This adds **Codex in Ephemeral Docker Sandbox** and **Claude in Ephemeral Docker
 Sandbox** entries. Each thread creates a separate sandbox and removes it after
-the ACP session exits. The normal Zed entries continue to use stable project
-sandboxes that persist across editor sessions.
+the ACP session exits. `--mode=auto` similarly adds **Codex in Auto Docker
+Sandbox** and **Claude in Auto Docker Sandbox** entries, reusing a discovered
+sandbox if one exists and otherwise falling back to a disposable one. The
+default `reuse`-mode entries continue to use stable project sandboxes that
+persist across editor sessions, and registering a different mode adds entries
+alongside them rather than replacing them.

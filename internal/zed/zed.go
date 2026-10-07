@@ -27,13 +27,15 @@ type Entry struct {
 	DefaultMode string            `json:"default_mode,omitempty"`
 }
 
-func Entries(executable, sbx, configPath string, ephemeral bool) map[string]Entry {
+func Entries(executable, sbx, configPath, mode string) map[string]Entry {
 	entries := make(map[string]Entry)
 	for _, a := range agent.All {
-		mode, name := "reuse", a.ZedName
-		if ephemeral {
-			mode = "ephemeral"
+		name := a.ZedName
+		switch mode {
+		case "ephemeral":
 			name = strings.Replace(a.ZedName, " in Docker Sandbox", " in Ephemeral Docker Sandbox", 1)
+		case "auto":
+			name = strings.Replace(a.ZedName, " in Docker Sandbox", " in Auto Docker Sandbox", 1)
 		}
 		e := Entry{Type: "custom", Command: executable, Args: []string{"run", a.Name, "--mode=" + mode}, DefaultMode: a.ZedDefaultMode}
 		if sbx != "" || configPath != "" {
@@ -98,7 +100,7 @@ func Merge(data []byte, entries map[string]Entry) ([]byte, error) {
 	}
 	obj, ok := root.Value.(*hujson.Object)
 	if !ok {
-		return nil, fmt.Errorf("Zed settings must be a JSON object")
+		return nil, fmt.Errorf("zed settings must be a JSON object")
 	}
 	servers := member(obj, "agent_servers")
 	if servers == nil {
@@ -258,7 +260,7 @@ func Install(ctx context.Context, path, cache string, entries map[string]Entry) 
 	if err != nil {
 		return r, err
 	}
-	defer os.Remove(f.Name())
+	defer func() { _ = os.Remove(f.Name()) }()
 	if err := writeFile(f, updated, mode); err != nil {
 		return r, err
 	}
@@ -275,7 +277,7 @@ func Install(ctx context.Context, path, cache string, entries map[string]Entry) 
 }
 
 func writeFile(f *os.File, data []byte, mode os.FileMode) error {
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	if err := f.Chmod(mode); err != nil {
 		return err
 	}

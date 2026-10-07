@@ -13,8 +13,8 @@ immediately in the editor.
 - Prepare a sandbox before opening a thread to avoid sandbox creation delays.
 
 **Requires:** an existing Docker Sandboxes installation with `sbx create --kit`
-support for v2 kits, `sbx ls --json`, and access to its local service, plus
-`sbx kit add` support if you want to add ACP to a sandbox you already created.
+support for v2 kits, `sbx ls --json`, and access to its local service, plus `sbx
+kit add` support if you want to add ACP to a sandbox you already created.
 Supports macOS and Linux on amd64 and arm64.
 
 **Validation status:** automated launcher tests with fake kit launchers are
@@ -32,12 +32,11 @@ live validation; see [validation](docs/validation.md).
    ```
 
    For Codex API-key auth use `sbx secret set -g openai` instead; for
-   non-interactive Claude auth use `sbx secret set -g anthropic`. See
-   `sbx secret set --help` for your installed CLI's options.
-   `sbx-connect` delegates provider auth and network policy to Docker
-   Sandboxes — it does not copy host credentials, `~/.codex`, `~/.claude`, or
-   agent configuration. If you add credentials after creating a sandbox, recreate
-   that sandbox to pick them up.
+   non-interactive Claude auth use `sbx secret set -g anthropic`. See `sbx
+   secret set --help` for your installed CLI's options. `sbx-connect` delegates
+   provider auth and network policy to Docker Sandboxes — it does not copy host
+   credentials, `~/.codex`, `~/.claude`, or agent configuration. If you add
+   credentials after creating a sandbox, recreate that sandbox to pick them up.
 
 2. **Install `sbx-connect`**, either via Homebrew once a release is published
    (see [Homebrew releases](docs/homebrew.md)):
@@ -75,17 +74,17 @@ live validation; see [validation](docs/validation.md).
    sbx-connect install zed
    ```
 
-   Open a project folder in Zed and pick **Codex in Docker Sandbox** or
-   **Claude in Docker Sandbox** from the agent panel. Restart Zed if the
-   entries don't appear. Both entries default to the agent's full-access mode,
-   leaving Docker Sandboxes itself as the permission boundary.
+   Open a project folder in Zed and pick **Codex in Docker Sandbox** or **Claude
+   in Docker Sandbox** from the agent panel. Restart Zed if the entries don't
+   appear. Both entries default to the agent's full-access mode, leaving Docker
+   Sandboxes itself as the permission boundary.
 
    For an explicit `--sbx-bin` path, `--print`-only output, disposable
-   `--ephemeral` entries, or how settings files get edited, see
+   `--mode=ephemeral` entries, or how settings files get edited, see
    [Zed registration details](docs/zed.md).
 
-To connect a different ACP editor instead of Zed, configure a custom stdio
-agent pointing at `sbx-connect run AGENT --project PATH` — see
+To connect a different ACP editor instead of Zed, configure a custom stdio agent
+pointing at `sbx-connect run AGENT --project PATH` — see
 [Connect other ACP editors](#connect-other-acp-editors) below.
 
 ## Configuring kits
@@ -108,41 +107,42 @@ launcher's absolute path:
 }
 ```
 
-Replace `codex` with `claude` as needed. Omit `--project` if the editor
-launches the process with its project directory as the working directory.
-stdin/stdout belong exclusively to ACP; diagnostics go to stderr. Adapter
-arguments must follow `--`.
+Replace `codex` with `claude` as needed. Omit `--project` if the editor launches
+the process with its project directory as the working directory. stdin/stdout
+belong exclusively to ACP; diagnostics go to stderr. Adapter arguments must
+follow `--`.
 
 ## Command reference
 
-| Command | Behavior |
-| --- | --- |
-| `run AGENT [options] [-- ARGS...]` | Provision a sandbox per `--mode` (default `reuse`), then connect ACP over stdio. |
-| `prepare AGENT [options]` | Select and verify a running sandbox or prepare a managed one without starting ACP; print its name. |
-| `install zed [--settings PATH] [--print] [--ephemeral]` | Register both agents using the executable's absolute path. |
-| `list` | Print only names in this tool's reserved namespace. |
-| `stop NAME` | Stop one existing managed sandbox. |
-| `remove NAME --yes` | Permanently remove one managed sandbox and its sandbox-local data. |
-| `doctor [--project PATH]` | Read-only host/service/project preflight; no sandbox starts or model calls. |
-| `version` | Print launcher version and default ACP kit references. |
+| Command                                                                   | Behavior                                                                                           |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `run AGENT [options] [-- ARGS...]`                                        | Provision a sandbox per `--mode` (default `reuse`), then connect ACP over stdio.                   |
+| `prepare AGENT [options]`                                                 | Select and verify a running sandbox or prepare a managed one without starting ACP; print its name. |
+| `install zed [--settings PATH] [--print] [--mode reuse\|ephemeral\|auto]` | Register both agents using the executable's absolute path.                                         |
+| `list`                                                                    | Print only names in this tool's reserved namespace.                                                |
+| `stop NAME`                                                               | Stop one existing managed sandbox.                                                                 |
+| `remove NAME --yes`                                                       | Permanently remove one managed sandbox and its sandbox-local data.                                 |
+| `doctor [--project PATH]`                                                 | Read-only host/service/project preflight; no sandbox starts or model calls.                        |
+| `version`                                                                 | Print launcher version and default ACP kit references.                                             |
 
 `AGENT` is `codex` or `claude`. `run` and `prepare` accept:
 
-| Option | Default and scope |
-| --- | --- |
-| `--project PATH` | Current directory; one local project root. |
-| `--kit REF` | Agent-specific published ACP kit release; used for new sandboxes or with `--add-acp-kit`. |
-| `--add-acp-kit` | Add the ACP kit to a discovered running sandbox if its launcher is missing; recreates its container. Default: false. |
-| `--add-kit REF` | Append an extra kit; repeat for multiple kits. Configured kits are also included. |
-| `--template TEMPLATE` | The `sbx` agent-specific default; custom templates affect new sandboxes only. |
+| Option                | Default and scope                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `--project PATH`      | Current directory; one local project root.                                                                           |
+| `--kit REF`           | Agent-specific published ACP kit release; used for new sandboxes or with `--add-acp-kit`.                            |
+| `--add-acp-kit`       | Add the ACP kit to a discovered running sandbox if its launcher is missing; recreates its container. Default: false. |
+| `--add-kit REF`       | Append an extra kit; repeat for multiple kits. Configured kits are also included.                                    |
+| `--template TEMPLATE` | The `sbx` agent-specific default; custom templates affect new sandboxes only.                                        |
 
-`run` also accepts `--mode`, selecting how it provisions the sandbox it connects to:
+`run` also accepts `--mode`, selecting how it provisions the sandbox it connects
+to:
 
-| Mode | Behavior |
-| --- | --- |
-| `reuse` (default) | Discovers a compatible running sandbox or creates/resumes the stable per-project sandbox, same as `prepare`. Never removed automatically. |
-| `ephemeral` | Bypasses discovery and always creates a new disposable sandbox; removes it after the ACP subprocess exits. Never touches the stable project sandbox. |
-| `auto` | Reuses a compatible running sandbox if found; otherwise falls back to a disposable sandbox, removed after the ACP subprocess exits. |
+| Mode              | Behavior                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reuse` (default) | Discovers a compatible running sandbox or creates/resumes the stable per-project sandbox, same as `prepare`. Never removed automatically.            |
+| `ephemeral`       | Bypasses discovery and always creates a new disposable sandbox; removes it after the ACP subprocess exits. Never touches the stable project sandbox. |
+| `auto`            | Reuses a compatible running sandbox if found; otherwise falls back to a disposable sandbox, removed after the ACP subprocess exits.                  |
 
 Other global flags: `--sbx-bin PATH` (or `SBX_CONNECT_SBX_BIN`) to point at a
 specific `sbx` binary, and `--debug` (or `SBX_CONNECT_DEBUG=1`) for lifecycle
@@ -157,8 +157,8 @@ For exactly how `sbx-connect` picks, names, and locks sandboxes for reuse, see
   a terminal first to populate caches before reconnecting the editor.
 - **Missing `sbx`:** install Docker Sandboxes, or set `--sbx-bin` /
   `SBX_CONNECT_SBX_BIN` to its absolute path.
-- **Kit launcher missing on an existing sandbox:** run
-  `sbx-connect prepare AGENT --add-acp-kit`.
+- **Kit launcher missing on an existing sandbox:** run `sbx-connect prepare
+  AGENT --add-acp-kit`.
 - **Provider authentication fails:** check host `sbx` secret configuration and
   network/provider access.
 

@@ -14,7 +14,7 @@ import (
 )
 
 func TestMergeJSONCAndIdempotence(t *testing.T) {
-	entries := Entries("/Applications/My Tools/sbx-connect", "", "", false)
+	entries := Entries("/Applications/My Tools/sbx-connect", "", "", "reuse")
 	for _, input := range []string{
 		"{}",
 		"// header\n{\n  // theme comment\n  \"theme\": \"One Dark\", // keep me\n}\n",
@@ -57,7 +57,7 @@ func TestMergeJSONCAndIdempotence(t *testing.T) {
 }
 
 func TestEntriesSetSandboxedDefaultModes(t *testing.T) {
-	entries := Entries("/bin/sbx-connect", "", "", false)
+	entries := Entries("/bin/sbx-connect", "", "", "reuse")
 	for name, want := range map[string]string{
 		"Codex in Docker Sandbox":  "agent-full-access",
 		"Claude in Docker Sandbox": "bypassPermissions",
@@ -69,7 +69,7 @@ func TestEntriesSetSandboxedDefaultModes(t *testing.T) {
 }
 
 func TestEntriesCanBeEphemeral(t *testing.T) {
-	entries := Entries("/bin/sbx-connect", "", "", true)
+	entries := Entries("/bin/sbx-connect", "", "", "ephemeral")
 	for name, wantArgs := range map[string][]string{
 		"Codex in Ephemeral Docker Sandbox":  {"run", "codex", "--mode=ephemeral"},
 		"Claude in Ephemeral Docker Sandbox": {"run", "claude", "--mode=ephemeral"},
@@ -84,8 +84,24 @@ func TestEntriesCanBeEphemeral(t *testing.T) {
 	}
 }
 
+func TestEntriesCanBeAuto(t *testing.T) {
+	entries := Entries("/bin/sbx-connect", "", "", "auto")
+	for name, wantArgs := range map[string][]string{
+		"Codex in Auto Docker Sandbox":  {"run", "codex", "--mode=auto"},
+		"Claude in Auto Docker Sandbox": {"run", "claude", "--mode=auto"},
+	} {
+		entry, ok := entries[name]
+		if !ok {
+			t.Fatalf("missing %s", name)
+		}
+		if !reflect.DeepEqual(entry.Args, wantArgs) {
+			t.Fatalf("%s args = %q, want %q", name, entry.Args, wantArgs)
+		}
+	}
+}
+
 func TestEntriesDefaultToReuseMode(t *testing.T) {
-	entries := Entries("/bin/sbx-connect", "", "", false)
+	entries := Entries("/bin/sbx-connect", "", "", "reuse")
 	for name, wantArgs := range map[string][]string{
 		"Codex in Docker Sandbox":  {"run", "codex", "--mode=reuse"},
 		"Claude in Docker Sandbox": {"run", "claude", "--mode=reuse"},
@@ -115,7 +131,7 @@ func TestMergeUpgradesExistingEntriesWithDefaultMode(t *testing.T) {
     }
   }
 }`)
-	out, err := Merge(input, Entries("/bin/sbx-connect", "", "", false))
+	out, err := Merge(input, Entries("/bin/sbx-connect", "", "", "reuse"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +150,7 @@ func TestConflictingAndInvalidSettings(t *testing.T) {
 		`{"agent_servers":{},"agent_servers":{}}`,
 		`{"agent_servers":{"Other":{},"Other":{}}}`,
 	} {
-		if _, err := Merge([]byte(input), Entries("/bin/sbx-connect", "", "", false)); err == nil {
+		if _, err := Merge([]byte(input), Entries("/bin/sbx-connect", "", "", "reuse")); err == nil {
 			t.Fatalf("accepted %s", input)
 		}
 	}
@@ -151,7 +167,7 @@ func TestInstallBackupModeSymlinkAndNoop(t *testing.T) {
 	if err := os.Symlink(path, link); err != nil {
 		t.Fatal(err)
 	}
-	entries := Entries("/bin/sbx-connect", "", "", false)
+	entries := Entries("/bin/sbx-connect", "", "", "reuse")
 	r, err := Install(context.Background(), link, filepath.Join(dir, "cache"), entries)
 	if err != nil || !r.Changed || r.Backup == "" {
 		t.Fatalf("%+v %v", r, err)
@@ -172,7 +188,7 @@ func TestInstallBackupModeSymlinkAndNoop(t *testing.T) {
 		t.Fatalf("no-op %+v %v", r, err)
 	}
 	before, _ := os.ReadFile(path)
-	_, err = Install(context.Background(), path, filepath.Join(dir, "cache"), Entries("/different/path", "", "", false))
+	_, err = Install(context.Background(), path, filepath.Join(dir, "cache"), Entries("/different/path", "", "", "reuse"))
 	if err == nil {
 		t.Fatal("expected conflict")
 	}

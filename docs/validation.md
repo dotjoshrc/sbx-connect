@@ -156,7 +156,8 @@ ACP `1.1.0` and Claude Agent ACP `0.51.0`, replacing the older launcher's npm pi
     Confirm kit-add or launcher-verification failure aborts without creating
     another sandbox. Close the connection and confirm externally created
     sandboxes retain their data and stay outside managed lifecycle commands.
-    Run `--ephemeral` and confirm only its new disposable sandbox is removed.
+    Run `run AGENT --mode=ephemeral` and confirm only its new disposable sandbox
+    is removed.
 
 Run live checks on both supported host operating systems before claiming full
 macOS/Linux compatibility. Publication is a separate action.

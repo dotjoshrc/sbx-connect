@@ -36,12 +36,12 @@ func TestMain(m *testing.M) {
 		cmd := exec.Command("go", append(args, build.source)...)
 		if out, err := cmd.CombinedOutput(); err != nil {
 			fmt.Fprintf(os.Stderr, "build: %s %v", out, err)
-			os.RemoveAll(buildDir)
+			_ = os.RemoveAll(buildDir)
 			os.Exit(1)
 		}
 	}
 	code := m.Run()
-	os.RemoveAll(buildDir)
+	_ = os.RemoveAll(buildDir)
 	os.Exit(code)
 }
 
@@ -130,7 +130,7 @@ func TestProvisionReuseStoppedAndKits(t *testing.T) {
 			if code != 0 || string(out) != name+"\n" {
 				t.Fatalf("%d %q %s", code, out, diag)
 			}
-			out, diag, code = f.run(t, nil, "stop", name)
+			_, diag, code = f.run(t, nil, "stop", name)
 			if code != 0 {
 				t.Fatal(diag)
 			}
@@ -566,7 +566,7 @@ func TestZedCLIPrintAndInstall(t *testing.T) {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		t.Fatal("--print wrote settings")
 	}
-	out, diag, code = f.run(t, nil, "install", "zed", "--settings", path, "--ephemeral", "--print")
+	out, diag, code = f.run(t, nil, "install", "zed", "--settings", path, "--mode=ephemeral", "--print")
 	if code != 0 {
 		t.Fatal(diag)
 	}
