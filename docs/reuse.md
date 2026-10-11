@@ -58,6 +58,10 @@ separate sandboxes. Renaming a project creates a new identity; old sandboxes
 remain until explicitly removed. Paths ending in `:ro` or `:rw` are rejected
 because `sbx` interprets them as mount modes.
 
+`project-folder` is truncated as needed to keep the full name within Docker
+Sandboxes' 63-character limit, after accounting for the fixed prefix, agent
+name, and hash.
+
 The prefix and full name pattern are reserved for this tool. Lifecycle commands
 refuse names outside that namespace and never prune automatically. Do not give
 manually created sandboxes matching names. The original launcher, its

@@ -66,21 +66,39 @@ func AbsoluteProject(path string) (string, error) {
 	return path, nil
 }
 
+// maxSandboxNameLen is the 63-character limit Docker Sandboxes enforces on
+// sandbox names.
+const maxSandboxNameLen = 63
+
+// hashBytes is the number of random/digest bytes hex-encoded into the name
+// suffix (so the suffix is 2*hashBytes characters).
+const hashBytes = 12
+
 func Name(a, path string) string {
 	sum := sha256.Sum256([]byte(path))
-	return fmt.Sprintf("sbx-connect-%s-%s-%x", a, projectSlug(path), sum[:12])
+	return fmt.Sprintf("sbx-connect-%s-%s-%x", a, projectSlug(path, slugBudget(a)), sum[:hashBytes])
 }
 
 // EphemeralName returns an owned sandbox name with a random per-session suffix.
 func EphemeralName(a, path string) (string, error) {
-	var suffix [12]byte
+	var suffix [hashBytes]byte
 	if _, err := rand.Read(suffix[:]); err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("sbx-connect-%s-%s-%x", a, projectSlug(path), suffix), nil
+	return fmt.Sprintf("sbx-connect-%s-%s-%x", a, projectSlug(path, slugBudget(a)), suffix), nil
 }
 
-func projectSlug(path string) string {
+// slugBudget returns the longest project slug that keeps the full
+// "sbx-connect-<agent>-<slug>-<hash>" name within maxSandboxNameLen.
+func slugBudget(a string) int {
+	fixed := len("sbx-connect-") + len(a) + len("-") + len("-") + 2*hashBytes
+	if budget := maxSandboxNameLen - fixed; budget > 0 {
+		return budget
+	}
+	return 1
+}
+
+func projectSlug(path string, maxLen int) string {
 	base := filepath.Base(path)
 	var b strings.Builder
 	lastDash := false
@@ -102,7 +120,7 @@ func projectSlug(path string) string {
 				lastDash = true
 			}
 		}
-		if b.Len() >= 40 {
+		if b.Len() >= maxLen {
 			break
 		}
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -60,8 +61,31 @@ func TestProjectSlug(t *testing.T) {
 		{"/tmp/---", "project"},
 		{"/tmp/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
 	} {
-		if got := projectSlug(tc.path); got != tc.want {
+		if got := projectSlug(tc.path, 40); got != tc.want {
 			t.Fatalf("projectSlug(%q) = %q, want %q", tc.path, got, tc.want)
+		}
+	}
+}
+
+func TestNameRespects63CharLimit(t *testing.T) {
+	longPath := "/tmp/" + strings.Repeat("a", 100)
+	for _, a := range []string{"codex", "claude"} {
+		name := Name(a, longPath)
+		if len(name) != maxSandboxNameLen {
+			t.Fatalf("Name(%q, longPath) = %q, len %d want %d", a, name, len(name), maxSandboxNameLen)
+		}
+		if !Owned(name) {
+			t.Fatalf("Owned(%q) = false, want true", name)
+		}
+		ephemeral, err := EphemeralName(a, longPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(ephemeral) != maxSandboxNameLen {
+			t.Fatalf("EphemeralName(%q, longPath) = %q, len %d want %d", a, ephemeral, len(ephemeral), maxSandboxNameLen)
+		}
+		if !Owned(ephemeral) {
+			t.Fatalf("Owned(%q) = false, want true", ephemeral)
 		}
 	}
 }
