@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-// sbx ls --json uses an object containing a sandboxes array. Workspace paths
+// sbx ls --json returns an array or an object containing a sandboxes array.
+// Workspace paths
 // are mounted at the same absolute path in the guest; read-only entries have
 // a :ro suffix. See docker/sandboxes cli-plugin/commands/ls.go and workspaces.go.
 type sandboxEntry struct {
@@ -23,16 +24,25 @@ type sandboxEntry struct {
 }
 
 func parseSandboxes(out string) ([]sandboxEntry, error) {
-	var listing struct {
-		Sandboxes *[]sandboxEntry `json:"sandboxes"`
+	var entries []sandboxEntry
+	out = strings.TrimSpace(out)
+	if strings.HasPrefix(out, "[") {
+		if err := json.Unmarshal([]byte(out), &entries); err != nil {
+			return nil, fmt.Errorf("invalid sbx ls --json response: %w", err)
+		}
+	} else {
+		var listing struct {
+			Sandboxes *[]sandboxEntry `json:"sandboxes"`
+		}
+		if err := json.Unmarshal([]byte(out), &listing); err != nil {
+			return nil, fmt.Errorf("invalid sbx ls --json response: %w", err)
+		}
+		if listing.Sandboxes == nil {
+			return nil, fmt.Errorf("invalid sbx ls --json response: missing sandboxes array")
+		}
+		entries = *listing.Sandboxes
 	}
-	if err := json.Unmarshal([]byte(out), &listing); err != nil {
-		return nil, fmt.Errorf("invalid sbx ls --json response: %w", err)
-	}
-	if listing.Sandboxes == nil {
-		return nil, fmt.Errorf("invalid sbx ls --json response: missing sandboxes array")
-	}
-	for _, entry := range *listing.Sandboxes {
+	for _, entry := range entries {
 		if entry.Name == "" || strings.HasPrefix(entry.Name, "-") || strings.ContainsAny(entry.Name, "/\x00\r\n") || entry.Agent == "" || entry.Status == "" {
 			return nil, fmt.Errorf("invalid sbx ls --json response: incomplete or invalid sandbox entry")
 		}
@@ -42,7 +52,7 @@ func parseSandboxes(out string) ([]sandboxEntry, error) {
 			}
 		}
 	}
-	return *listing.Sandboxes, nil
+	return entries, nil
 }
 
 func workspacePath(workspace string) (string, bool) {

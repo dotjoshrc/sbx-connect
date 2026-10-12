@@ -9,7 +9,9 @@ import (
 
 func TestParseSandboxes(t *testing.T) {
 	for _, response := range []string{
-		``, `null`, `[]`, `{}`, `{"sandboxes":null}`, `{"sandboxes":{}}`,
+		``, `null`, `{}`, `{"sandboxes":null}`, `{"sandboxes":{}}`,
+		`[{}]`,
+		`[{"name":"demo","agent":"codex","status":"running","workspaces":["relative"]}]`,
 		`{"sandboxes":[{}]}`,
 		`{"sandboxes":[{"name":"-bad","agent":"codex","status":"running"}]}`,
 		`{"sandboxes":[{"name":"demo","agent":"codex","status":"running","workspaces":["relative"]}]}`,
@@ -27,6 +29,17 @@ func TestParseSandboxes(t *testing.T) {
 	}
 	if got, err := parseSandboxes(`{"sandboxes":[]}`); err != nil || len(got) != 0 {
 		t.Fatalf("empty listing: %#v %v", got, err)
+	}
+}
+
+func TestParseSandboxesArray(t *testing.T) {
+	want := []sandboxEntry{{Name: "demo", Agent: "codex", Status: "running", Workspaces: []string{"/repo"}}}
+	got, err := parseSandboxes(` [{"name":"demo","agent":"codex","status":"running","workspaces":["/repo"]}] `)
+	if err != nil || !reflect.DeepEqual(got, want) {
+		t.Fatalf("array listing: got %#v, %v, want %#v", got, err, want)
+	}
+	if got, err := parseSandboxes(`[]`); err != nil || len(got) != 0 {
+		t.Fatalf("empty array listing: %#v %v", got, err)
 	}
 }
 
