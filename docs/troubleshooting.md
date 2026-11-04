@@ -19,6 +19,12 @@ See the [README](../README.md) for the common cases. This page covers the rest.
 - **Adapter download/start fails:** read stderr and verify template Node/npm
   compatibility, the agent binary, and network policy for registry downloads.
   Retry the connection; the kit manages npm caching.
+- **npm exits 254 with `ENOENT` for `/usr/local/share/npm-global/lib`:**
+  npm 9.2.0 can fail while checking global packages when this directory is
+  missing, before starting the adapter. Run
+  `sbx exec SANDBOX sudo mkdir -p /usr/local/share/npm-global/lib`
+  with the sandbox name printed by the launcher, then reconnect. This also
+  affects root projects; opening a subdirectory is not required to trigger it.
 - **Provider authentication fails:** check host `sbx` secret configuration and
   provider/network access. `doctor` does not validate paid model access.
 - **Provisioning lock timeout:** another process may still be creating the
