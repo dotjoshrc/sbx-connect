@@ -11,6 +11,11 @@ See the [README](../README.md) for the common cases. This page covers the rest.
   (managed lifecycle), host login, and local Docker
   Sandboxes service availability. A listing failure aborts provisioning; it never
   triggers creation.
+- **Cannot mix v3 kits with v1/v2 kits:** upgrade sbx-connect to use the v3 ACP
+  defaults (`docker.io/sbx/codex-acp:2.5.0` and
+  `docker.io/sbx/claude-acp:0.100.0`). Update any explicit `--kit` or `acp_kit`
+  overrides and extra kits so the entire composition uses v3. Older
+  `docker.io/sbx/*-acp-kit` references use the incompatible v1/v2 format.
 - **Kit launcher missing:** run `prepare AGENT --add-acp-kit` to add ACP to the
   discovered running sandbox. If adding it fails, inspect stderr and
   `sbx kit add --help`; an older sandbox may predate kit-add support. Preserve sandbox-local data

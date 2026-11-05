@@ -22,11 +22,18 @@ func must(err error) {
 	}
 }
 func write(p, s string) { must(os.WriteFile(p, []byte(s), 0600)) }
+func launcher(agent string) string {
+	if agent == "claude" {
+		return "claude-agent-acp"
+	}
+	return agent + "-acp"
+}
+
 func main() {
 	state := os.Getenv("FAKE_STATE")
 	args := os.Args[1:]
 	base := filepath.Base(os.Args[0])
-	if base == "acp" || base == "codex-acp" || base == "claude-acp" {
+	if base == "acp" || base == "codex-acp" || base == "claude-acp" || base == "claude-agent-acp" {
 		if len(args) == 1 && args[0] == "--help" {
 			if os.Getenv("FAKE_HELP_FAIL") != "" {
 				os.Exit(24)
@@ -137,12 +144,12 @@ func main() {
 		if os.Getenv("FAKE_SLOW") != "" {
 			time.Sleep(150 * time.Millisecond)
 		}
-		bin := filepath.Join(sandboxes, name, "home/.local/bin")
+		bin := filepath.Join(sandboxes, name, "usr/local/bin")
 		must(os.MkdirAll(bin, 0700))
 		if os.Getenv("FAKE_NO_BINARY") == "" {
 			exe, err := os.Executable()
 			must(err)
-			must(os.Symlink(exe, filepath.Join(bin, args[i]+"-acp")))
+			must(os.Symlink(exe, filepath.Join(bin, launcher(args[i]))))
 		}
 		write(filepath.Join(sandboxes, name, "kit"), args[4])
 		kitJSON, err := json.Marshal(kits)
@@ -168,7 +175,9 @@ func main() {
 		if os.Getenv("FAKE_NO_BINARY") == "" {
 			exe, err := os.Executable()
 			must(err)
-			must(os.Symlink(exe, filepath.Join(dir, "home", ".local", "bin", string(agent)+"-acp")))
+			bin := filepath.Join(dir, "usr/local/bin")
+			must(os.MkdirAll(bin, 0700))
+			must(os.Symlink(exe, filepath.Join(bin, launcher(string(agent)))))
 		}
 		write(filepath.Join(dir, "kit"), args[3])
 		fmt.Println("kit add noise")
@@ -193,7 +202,7 @@ func main() {
 		// Keep command lookup inside the fake guest, independent of host adapters.
 		must(os.Setenv("PATH", filepath.Join(sandboxes, name, "usr/local/bin")+":/usr/bin:/bin"))
 		if command[0] == "bash" {
-			if len(command) != 7 || command[1] != "-c" || command[3] != "--" || args[1] == "-i" {
+			if len(command) != 8 || command[1] != "-c" || command[3] != "--" || args[1] == "-i" {
 				panic("expected non-interactive launcher check")
 			}
 			if os.Getenv("FAKE_PROBE_FAIL") != "" {
@@ -202,7 +211,8 @@ func main() {
 			}
 			must(os.Setenv("FAKE_CLONE_PATH", filepath.Join(sandboxes, name, "clone")))
 			command[2] = strings.ReplaceAll(command[2], "/run/sandbox/source", `"$FAKE_CLONE_PATH"`)
-			command[6] = strings.Replace(command[6], "/home/agent/", home+"/", 1)
+			command[6] = strings.Replace(command[6], "/usr/local/bin/", filepath.Join(sandboxes, name, "usr/local/bin")+"/", 1)
+			command[7] = strings.Replace(command[7], "/home/agent/", home+"/", 1)
 		} else if command[0] == "test" {
 			if len(command) != 3 || command[1] != "-x" || args[1] == "-i" {
 				panic("expected non-interactive launcher check")

@@ -74,8 +74,9 @@ session exits.
 
 ## Kit launchers and locking
 
-Kit launchers live under `/home/agent/.local/bin`, outside the shared workspace.
-Their `npx` invocations manage adapter downloads and caching inside the sandbox.
+Default v3 kit launchers live under `/usr/local/bin`, outside the shared
+workspace. Older `/home/agent/.local/bin/{agent}-acp` launchers are also supported.
+Kits manage the adapter runtime inside the sandbox.
 `sbx-connect` does not install npm packages or maintain adapter readiness markers.
 
 An OS file lock serializes creation and launcher verification for each sandbox,

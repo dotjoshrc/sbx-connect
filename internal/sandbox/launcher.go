@@ -28,7 +28,7 @@ func (m Manager) checkLauncher(ctx context.Context, p *Project, reuse bool) (str
 	if reuse {
 		check = reuseCheck
 	}
-	out, err := m.Runner.Capture(ctx, "exec", "--workdir", p.Path, p.Name, "bash", "-c", check, "--", p.Agent.Name+"-acp", "acp", p.Agent.Binary)
+	out, err := m.Runner.Capture(ctx, "exec", "--workdir", p.Path, p.Name, "bash", "-c", check, "--", p.Agent.Name+"-acp", "acp", p.Agent.Binary, "/home/agent/.local/bin/"+p.Agent.Name+"-acp")
 	if err != nil {
 		return "", err
 	}

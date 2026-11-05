@@ -13,7 +13,7 @@ immediately in the editor.
 - Prepare a sandbox before opening a thread to avoid sandbox creation delays.
 
 **Requires:** an existing Docker Sandboxes installation with `sbx create --kit`
-support for v2 kits, `sbx ls --json`, and access to its local service, plus `sbx
+support for v3 kits, `sbx ls --json`, and access to its local service, plus `sbx
 kit add` support if you want to add ACP to a sandbox you already created.
 Supports macOS and Linux on amd64 and arm64.
 
@@ -91,7 +91,7 @@ pointing at `sbx-connect run AGENT --project PATH` — see
 ## Configuring kits
 
 By default each agent gets its matching published ACP kit
-(`docker.io/sbx/codex-acp-kit` or `docker.io/sbx/claude-acp-kit`). To add more
+(`docker.io/sbx/codex-acp` or `docker.io/sbx/claude-acp`). To add more
 kits — a published kit, a local directory, or a one-off `--add-kit` flag — see
 [Configuration](docs/configuration.md), which also covers kit resolution order
 and how to update kits on an existing sandbox.

@@ -95,7 +95,7 @@ No Python or host Node/npm is required. The command reports the adapter's actual
 
 `prepare` checks that the kit launcher is executable; it does not download the
 adapter or validate its runtime. The smoke check starts the real kit launcher,
-exercising its `npx` download and ACP initialization. It does not establish that
+exercising its runtime and ACP initialization. It does not establish that
 provider authentication, paid model access, or an editor conversation works.
 
 ## Required live acceptance before publication
@@ -103,11 +103,10 @@ provider authentication, paid model access, or an editor conversation works.
 This implementation environment has no `sbx`. Kit provisioning, authenticated
 sessions, and Zed acceptance remain pending on a host with Docker Sandboxes.
 Record OS/architecture, `sbx version`, template/image identity, launcher version,
-kit reference, actual adapter version, and results. Default kit tags are
-`20260924-d058fedc156325f87612d9bcd9bd313ab74ba100`; the kit sources specify Codex
-ACP `1.1.0` and Claude Agent ACP `0.51.0`, replacing the older launcher's npm pins.
+kit reference, actual adapter version, and results. Default kits are
+`docker.io/sbx/codex-acp:2.5.0` and `docker.io/sbx/claude-acp:0.100.0` (v3).
 
-1. Install Docker Sandboxes with v2 kit support. Configure host OpenAI and
+1. Install Docker Sandboxes with v3 kit support. Configure host OpenAI and
    Anthropic secrets before creating sandboxes, plus appropriate network policy.
    Choose a disposable project whose absolute path contains spaces. Run `doctor`
    and verify that it has not created or started a sandbox.

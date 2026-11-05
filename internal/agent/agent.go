@@ -12,15 +12,15 @@ type Definition struct {
 var All = []Definition{
 	{
 		Name:           "codex",
-		Kit:            "docker.io/sbx/codex-acp-kit:20260924-d058fedc156325f87612d9bcd9bd313ab74ba100",
-		Binary:         "/home/agent/.local/bin/codex-acp",
+		Kit:            "docker.io/sbx/codex-acp:2.5.0",
+		Binary:         "/usr/local/bin/codex-acp",
 		ZedName:        "Codex in Docker Sandbox",
 		ZedDefaultMode: "agent-full-access",
 	},
 	{
 		Name:           "claude",
-		Kit:            "docker.io/sbx/claude-acp-kit:20260924-d058fedc156325f87612d9bcd9bd313ab74ba100",
-		Binary:         "/home/agent/.local/bin/claude-acp",
+		Kit:            "docker.io/sbx/claude-acp:0.100.0",
+		Binary:         "/usr/local/bin/claude-agent-acp",
 		ZedName:        "Claude in Docker Sandbox",
 		ZedDefaultMode: "bypassPermissions",
 	},

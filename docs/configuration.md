@@ -84,20 +84,24 @@ owning tool, then prepare it again to use the new kits.
 
 | Agent / sandbox flavor | Default kit repository | Kit launcher |
 | --- | --- | --- |
-| `codex` | [`docker.io/sbx/codex-acp-kit`](https://hub.docker.com/r/sbx/codex-acp-kit) | `/home/agent/.local/bin/codex-acp` |
-| `claude` | [`docker.io/sbx/claude-acp-kit`](https://hub.docker.com/r/sbx/claude-acp-kit) | `/home/agent/.local/bin/claude-acp` |
+| `codex` | [`docker.io/sbx/codex-acp`](https://hub.docker.com/r/sbx/codex-acp) | `/usr/local/bin/codex-acp` |
+| `claude` | [`docker.io/sbx/claude-acp`](https://hub.docker.com/r/sbx/claude-acp) | `/usr/local/bin/claude-agent-acp` |
 
-Both defaults use the published tag
-`20260924-d058fedc156325f87612d9bcd9bd313ab74ba100`. The kit release owns the npm
-adapter version; this release uses Codex ACP `1.1.0` and Claude Agent ACP `0.51.0`.
-These differ from the older launcher's pins. Dated tags avoid following `latest`
-by default, but tags, transitive npm dependencies, and base images are not a
-promise of fully reproducible environments.
+The defaults are v3 kits pinned to `codex-acp:2.5.0` and `claude-acp:0.100.0`,
+respectively. They require Docker Sandboxes with v3 kit support. All kits in a
+sandbox composition must use the same format; older `*-acp-kit` releases use
+v1/v2 and cannot be combined with v3 agent or extra kits. Update any explicit
+`acp_kit` or `--kit` overrides and extra kits to compatible v3 releases.
+
+The kit release owns the adapter version. Version tags avoid following `latest`
+by default, but tags and base images are not a promise of fully reproducible
+environments.
 
 Use `--kit REF` to select another compatible ACP kit release when creating a sandbox
 or adding ACP to a discovered running sandbox with `--add-acp-kit`.
 The launcher checks the sandbox's `PATH` for `{agent}-acp` (such as `codex-acp`),
-then `acp`, then falls back to the kit launcher path above. It starts the resolved
+then `acp`, then falls back to the kit launcher path above and the legacy
+`/home/agent/.local/bin/{agent}-acp` path. It starts the resolved
 executable for the ACP session. Custom kits can supply any of these commands. The old
 `--adapter-version` option has been removed. Changing a kit reference or upgrading
 this CLI does not replace an existing ACP launcher. `version` reports defaults,

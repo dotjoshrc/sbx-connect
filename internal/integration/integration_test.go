@@ -168,7 +168,7 @@ func TestProvisionReuseStoppedAndKits(t *testing.T) {
 				if c[0] == "create" && !reflect.DeepEqual(c, []string{"create", "--name", name, "--kit", definition.Kit, "--template", "custom template", ag, f.project}) {
 					t.Fatal(c)
 				}
-				binary := filepath.Join(f.state, "sandboxes", name, "home/.local/bin", ag+"-acp")
+				binary := filepath.Join(f.state, "sandboxes", name, strings.TrimPrefix(definition.Binary, "/"))
 				if c[0] == "exec" && c[1] == "-i" && !reflect.DeepEqual(c, []string{"exec", "-i", "--workdir", f.project, name, binary}) {
 					t.Fatal(c)
 				}
