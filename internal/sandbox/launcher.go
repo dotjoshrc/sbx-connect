@@ -29,6 +29,7 @@ func (m Manager) checkLauncher(ctx context.Context, p *Project, reuse bool) (str
 		check = reuseCheck
 	}
 	out, err := m.Runner.Capture(ctx, "exec", "--workdir", p.Path, p.Name, "bash", "-c", check, "--", p.Agent.Name+"-acp", "acp", p.Agent.Binary, "/home/agent/.local/bin/"+p.Agent.Name+"-acp")
+	m.debugf("lifecycle launcher-check response name=%q reuse=%t output=%q error=%v", p.Name, reuse, out, err)
 	if err != nil {
 		return "", err
 	}

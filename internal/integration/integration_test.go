@@ -264,6 +264,7 @@ func TestDebugLifecycleLogs(t *testing.T) {
 	for _, want := range []string{
 		"sbx-connect debug: lifecycle run start",
 		"sbx-connect debug: lifecycle create start",
+		"sbx-connect debug: lifecycle launcher-check response",
 		"sbx-connect debug: lifecycle acp exit",
 		"sbx-connect debug: lifecycle cleanup remove done",
 		"sbx-connect debug: lifecycle run done",
